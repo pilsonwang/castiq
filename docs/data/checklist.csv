@@ -1,0 +1,9 @@
+ask_the_buyer,signal,effect,win_rate,n,lift_pts
+Existing relationship / referral / trade show,Where the deal came from = Direct mail,lowers win rate by 51 pts,0.0,16,-50.66964285714286
+Is the program funded (tooling PO budget approved)?,Budget allocated = Unknown,lowers win rate by 37 pts,0.1388888888888889,36,-36.78075396825397
+New program / re-source / maintenance,Deal type = Maintenance,raises win rate by 36 pts,0.8709677419354839,31,36.42713133640553
+Strategic account vs. normal vs. first deal,Our attitude to the client = First deal,lowers win rate by 35 pts,0.15384615384615385,39,-35.285027472527474
+Is Purchasing running the sourcing event?,Purchasing department involved = Unknown,lowers win rate by 35 pts,0.15625,32,-35.04464285714286
+Already an approved supplier at this plant?,New or current client = New,lowers win rate by 34 pts,0.17088607594936708,158,-33.58103526220615
+Are other casters quoting?,Competitors in the deal = Yes,lowers win rate by 30 pts,0.2097902097902098,143,-29.69062187812188
+Is this a strategic program for us?,Strategic importance to us = Unimportant,lowers win rate by 29 pts,0.21428571428571427,28,-29.24107142857143

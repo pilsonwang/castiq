@@ -1,0 +1,124 @@
+{
+  "forecast": {
+    "avg_model_probability": 0.488978,
+    "avg_stage_default_probability": 0.893576,
+    "baseline_brier": 0.249609,
+    "best_case_p90": 67688932.5,
+    "brier_skill": 0.003862,
+    "calibration_max_gap": 0.10623,
+    "closed_deals_for_training": 2099,
+    "commit_p10": 62252141.8,
+    "forecast_historical_rate": 63236809.886613,
+    "forecast_model_expected": 64976858.501638,
+    "forecast_stage_default": 117602553.95,
+    "historical_win_rate": 0.480229,
+    "most_likely_p50": 64972526.0,
+    "oof_auc": 0.568259,
+    "oof_brier": 0.248645,
+    "open_deals": 2156,
+    "open_pipeline_acv": 131680619.0,
+    "prob_reaching_stage_default": 0.0,
+    "stage_default_overstatement": 0.809914
+  },
+  "lead_scoring": {
+    "bottom_tier_rate": 0.18,
+    "leakage": {
+      "auc_inflation": 0.034993,
+      "columns_removed": "total_touches_all",
+      "gbm_auc_with_leak": 0.644693,
+      "gbm_auc_without_leak": 0.6097
+    },
+    "model": "Logistic regression (scorecard)",
+    "n_features_categorical": 11,
+    "n_features_numeric": 14,
+    "precision_at_100": 0.33,
+    "test_auc": 0.606064,
+    "test_auc_ci_high": 0.652335,
+    "test_auc_ci_low": 0.560139,
+    "test_average_precision": 0.289665,
+    "test_base_rate": 0.222667,
+    "test_brier": 0.168946,
+    "test_conversions": 167,
+    "test_rows": 750,
+    "tier_used": "intermediate",
+    "top30_share_of_conversions": 0.389222,
+    "top_tier_lift": 1.497006,
+    "top_tier_rate": 0.333333
+  },
+  "market": {
+    "country": {
+      "country_companies": 4306855,
+      "country_with_industry": 3960994,
+      "country_with_size": 4112151,
+      "country_with_state": 4208943,
+      "country_with_website": 3378171,
+      "in_market_companies": 247552
+    },
+    "in_market_accounts": 247552,
+    "sam_usd": 7555895374.999999,
+    "som_usd": 226676861.25,
+    "tam_usd": 21743548750.0,
+    "tier_a_accounts": 20309,
+    "tier_ab_accounts": 90822
+  },
+  "pipeline": {
+    "as_of_date": "2024-02-29",
+    "avg_lost_acv": 59702.476627,
+    "avg_won_acv": 61140.30754,
+    "closed_opportunities": 2099,
+    "median_open_acv": 49877.0,
+    "open_opportunities": 2156,
+    "open_pipeline_acv": 131680619.0,
+    "opportunities": 4255,
+    "significant_segments": [
+      "Lead source: partner_referral",
+      "Industry: manufacturing",
+      "Buyer role of first contact: end_user"
+    ],
+    "stalled_acv": 7783657.0,
+    "stalled_after_days": 7,
+    "stalled_deals": 132,
+    "stalled_share_of_pipeline": 0.05911,
+    "win_rate": 0.480229,
+    "win_rate_ci": [
+      0.458911,
+      0.501619
+    ],
+    "won": 1008,
+    "won_acv": 61629430.0
+  },
+  "quality": {
+    "checks": 14,
+    "duplicate_company_websites": 10755,
+    "failed_checks": 8,
+    "seniority_mismatch_pct": 0.776905,
+    "states_fixed": 527
+  },
+  "reps": {
+    "chi2": 1.441031,
+    "dof": 9,
+    "max_rate": 0.495536,
+    "min_rate": 0.454976,
+    "p_value": 0.997561
+  },
+  "territories": {
+    "count": 6,
+    "cv_after": 0.104098,
+    "cv_before": 0.508064,
+    "data_review_accounts": 766,
+    "max_min_after": 1.337739,
+    "max_min_before": 9.75512,
+    "named_accounts_per_rep": 150,
+    "reps": 12,
+    "strategic_accounts": 898,
+    "strategic_potential_usd": 6830750000.0
+  },
+  "win_loss": {
+    "base_win_rate": 0.506696,
+    "cv_auc_mean": 0.813602,
+    "cv_auc_std": 0.037336,
+    "deals": 448,
+    "q1_win_rate": 0.133929,
+    "q4_win_rate": 0.848214
+  }
+}

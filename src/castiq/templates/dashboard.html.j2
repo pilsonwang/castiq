@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CastIQ RevOps Dashboard</title>
+<meta name="description" content="RevOps analytics for an industrial die-cast supplier: market sizing, ICP scoring, territory design, RFQ win/loss, lead scoring, pipeline health, forecasting and data quality - built on public Hugging Face datasets.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --series1: #2a78d6; --neutral: #b4b2a9; --pos: #2a78d6; --neg: #e34948;
+  --ord1: #86b6ef; --ord2: #3987e5; --ord3: #256abf; --ord4: #104281;
+  --seq0: #e6f0fc; --seq1: #b7d3f6; --seq2: #6da7ec; --seq3: #2a78d6; --seq4: #184f95;
+  --tileink0: #0b0b0b; --tileink1: #0b0b0b; --tileink2: #0b0b0b; --tileink3: #ffffff; --tileink4: #ffffff;
+  --good: #006300; --critical: #d03b3b; --accent-bg: #eef4fc; --real: #006300; --synth: #8a5a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --series1: #3987e5; --neutral: #5b5a55; --pos: #3987e5; --neg: #e66767;
+    --ord1: #184f95; --ord2: #256abf; --ord3: #3987e5; --ord4: #86b6ef;
+    --seq0: #142235; --seq1: #184f95; --seq2: #256abf; --seq3: #3987e5; --seq4: #86b6ef;
+    --tileink0: #f0efec; --tileink1: #f0efec; --tileink2: #ffffff; --tileink3: #0b0b0b; --tileink4: #0b0b0b;
+    --good: #0ca30c; --critical: #e66767; --accent-bg: #15212f; --real: #0ca30c; --synth: #eda100;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --series1: #3987e5; --neutral: #5b5a55; --pos: #3987e5; --neg: #e66767;
+  --ord1: #184f95; --ord2: #256abf; --ord3: #3987e5; --ord4: #86b6ef;
+  --seq0: #142235; --seq1: #184f95; --seq2: #256abf; --seq3: #3987e5; --seq4: #86b6ef;
+  --tileink0: #f0efec; --tileink1: #f0efec; --tileink2: #ffffff; --tileink3: #0b0b0b; --tileink4: #0b0b0b;
+  --good: #0ca30c; --critical: #e66767; --accent-bg: #15212f; --real: #0ca30c; --synth: #eda100;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--page); color: var(--ink); }
+body { font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 64px; }
+header.top { padding: 40px 0 8px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 22px; margin: 0 0 4px; }
+h3 { font-size: 15px; margin: 0 0 8px; color: var(--ink2); font-weight: 600; }
+p { margin: 0 0 10px; }
+.lede { color: var(--ink2); max-width: 820px; font-size: 16px; }
+.muted { color: var(--muted); }
+button.theme { background: var(--surface); color: var(--ink); border: 1px solid var(--ring); border-radius: 8px;
+  padding: 8px 12px; font: inherit; cursor: pointer; white-space: nowrap; }
+nav.toc { position: sticky; top: 0; z-index: 5; background: var(--page); border-bottom: 1px solid var(--grid);
+  display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; margin-bottom: 8px; }
+nav.toc a { color: var(--ink2); text-decoration: none; padding: 6px 10px; border-radius: 6px; white-space: nowrap; font-size: 14px; }
+nav.toc a:hover { background: var(--accent-bg); color: var(--ink); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0 8px; }
+.kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.kpi .v { font-size: 26px; font-weight: 650; line-height: 1.2; }
+.kpi .l { color: var(--ink2); font-size: 13px; }
+.kpi .s { color: var(--muted); font-size: 12px; margin-top: 4px; }
+section { margin-top: 36px; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; margin-bottom: 12px; }
+.badge { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; border: 1px solid currentColor; }
+.badge.real { color: var(--real); } .badge.synth { color: var(--synth); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+@media (max-width: 860px) { .grid2, .grid3 { grid-template-columns: 1fr; } header.top { flex-direction: column; } }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 16px; min-width: 0; }
+.chart { width: 100%; min-height: 240px; }
+.sowhat { background: var(--accent-bg); border-radius: 12px; padding: 14px 16px; margin-top: 16px; }
+.sowhat b { color: var(--ink); }
+.sowhat ul { margin: 6px 0 0; padding-left: 20px; }
+.tbl { overflow-x: auto; }
+.tbl table { min-width: 560px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink2); font-weight: 600; white-space: nowrap; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.ok { color: var(--good); font-weight: 600; white-space: nowrap; } .bad { color: var(--critical); font-weight: 600; white-space: nowrap; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink2); margin-top: 6px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--accent-bg); padding: 1px 5px; border-radius: 4px; }
+footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--grid); padding-top: 16px; }
+a { color: var(--series1); }
+</style>
+<script>
+try { const t = localStorage.getItem("castiq-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<script>{{ plotlyjs }}</script>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>CastIQ: the RevOps engine I would build for an industrial die-cast supplier</h1>
+    <p class="lede">I sold industrial die-cast parts to manufacturers. This project turns that field knowledge into
+    the systems a revenue team runs on: who to sell to, who owns which account, which RFQs to chase, which leads to call first,
+    what the forecast really is, and which CRM data is broken. Everything is reproducible from pinned public Hugging Face datasets.</p>
+    <p class="muted" style="font-size:13px">Data: <span class="badge real">REAL</span> = real-world records ·
+    <span class="badge synth">SYNTHETIC</span> = published simulated CRM (no real CRM is public). Every rate shows its sample size and 95% interval.</p>
+  </div>
+  <button class="theme" id="themeBtn" type="button" aria-label="Switch light or dark theme">◐ Theme</button>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#market">1 · Market &amp; ICP</a><a href="#territories">2 · Territories</a><a href="#winloss">3 · RFQ win/loss</a>
+  <a href="#leads">4 · Lead scoring</a><a href="#pipeline">5 · Pipeline</a><a href="#forecast">6 · Forecast</a>
+  <a href="#quality">7 · Data quality</a><a href="#method">8 · Method</a>
+</nav>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">{{ m.market.in_market_accounts|num }}</div><div class="l">in-market US manufacturers scored</div><div class="s">from {{ m.market.country.country_companies|num }} US companies</div></div>
+  <div class="kpi"><div class="v">{{ m.market.tier_a_accounts|num }}</div><div class="l">Tier-A ICP accounts</div><div class="s">SAM {{ m.market.sam_usd|money }} / yr (illustrative)</div></div>
+  <div class="kpi"><div class="v">{{ "%.1f"|format(m.territories.max_min_before) }}× → {{ "%.2f"|format(m.territories.max_min_after) }}×</div><div class="l">territory imbalance (largest ÷ smallest)</div><div class="s">all territories contiguous</div></div>
+  <div class="kpi"><div class="v">{{ "%.2f"|format(m.win_loss.cv_auc_mean) }}</div><div class="l">RFQ win/loss model AUC</div><div class="s">top-quartile deals win {{ m.win_loss.q4_win_rate|pct }} vs {{ m.win_loss.q1_win_rate|pct }}</div></div>
+  <div class="kpi"><div class="v">+{{ m.forecast.stage_default_overstatement|pct }}</div><div class="l">forecast overstated by CRM stage defaults</div><div class="s">{{ m.forecast.forecast_stage_default|money }} vs {{ m.forecast.forecast_model_expected|money }}</div></div>
+  <div class="kpi"><div class="v">{{ m.quality.failed_checks }} / {{ m.quality.checks }}</div><div class="l">data-quality checks failing</div><div class="s">with owner + fix for each</div></div>
+</div>
+
+<!-- 1 MARKET -->
+<section id="market">
+  <div class="sec-head"><h2>1 · Market map &amp; ICP fit</h2><span class="badge real">REAL · 17M-company firmographics</span></div>
+  <p class="lede">I filtered {{ m.market.country.country_companies|num }} US companies down to {{ m.market.in_market_accounts|num }} in industries that buy
+  die-cast parts, then scored each one 0–100 on industry fit, size (tooling only pays back at volume) and freight distance from the
+  Midwest/Southeast auto belt. The rules live in <code>config/icp.yaml</code>, so a sales leader can change them without code.</p>
+  <div class="grid3">
+    <div class="card"><h3>Where the spend is: top industries by estimated die-cast spend</h3><div class="chart" id="fig-market_industries"></div></div>
+    <div class="card"><h3>Companies per ICP tier</h3><div class="chart" id="fig-market_tiers"></div>
+      <table><tbody>
+        <tr><td>TAM (all in-market)</td><td class="num">{{ m.market.tam_usd|money }}</td></tr>
+        <tr><td>SAM (A–C tiers × serviceable share)</td><td class="num">{{ m.market.sam_usd|money }}</td></tr>
+        <tr><td>SOM (3-yr obtainable)</td><td class="num">{{ m.market.som_usd|money }}</td></tr>
+      </tbody></table>
+      <p class="muted" style="font-size:12px;margin-top:6px">$ values use editable spend-per-company assumptions; account counts are real.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Top non-strategic target accounts (full list: <code>docs/data/top_accounts.csv</code>)</h3>{{ tables.top_accounts }}</div>
+  <div class="sowhat"><b>So what:</b> {{ m.market.tier_ab_accounts|num }} A/B accounts is more than any field team can cover.
+  The next two sections decide <i>who</i> works them and <i>which</i> opportunities deserve a quote.</div>
+</section>
+
+<!-- 2 TERRITORIES -->
+<section id="territories">
+  <div class="sec-head"><h2>2 · Territory design &amp; routing</h2><span class="badge real">REAL · same firmographics</span></div>
+  <p class="lede">Geography-only territories (k-means on state centres) were {{ "%.1f"|format(m.territories.max_min_before) }}× apart in potential —
+  one rep would get a fortune, another a desert. I re-balanced with a local search that moves one border state at a time and never breaks
+  a territory into pieces. Result: {{ "%.2f"|format(m.territories.max_min_after) }}× spread (coefficient of variation {{ "%.2f"|format(m.territories.cv_before) }} → {{ "%.2f"|format(m.territories.cv_after) }}).
+  The {{ m.territories.strategic_accounts|num }} largest Tier-A OEMs ({{ m.territories.strategic_potential_usd|money }} potential) are carved out to a strategic team first.</p>
+  <div class="grid2">
+    <div class="card"><h3>Territory map: tile colour = A/B potential, bold lines = territory borders</h3><div class="chart" id="fig-tile_map"></div>
+      <div class="legend"><span><span class="sw" style="background:var(--seq0)"></span>low potential</span><span><span class="sw" style="background:var(--seq4)"></span>high potential</span><span>T1…T6 = territory</span></div></div>
+    <div class="card"><h3>Potential per territory: before (geography only) vs after (balanced, contiguous)</h3><div class="chart" id="fig-territory_balance"></div>{{ tables.territories }}</div>
+  </div>
+  <div class="sowhat"><b>Routing rules</b> (first match wins, in <code>routing.py</code>): ① Tier-A with 5K+ employees → Strategic team ·
+  ② no usable state → RevOps data review ({{ m.territories.data_review_accounts|num }} accounts) · ③ state → territory → round-robin
+  by fit score across {{ m.territories.reps }} reps, capped at {{ m.territories.named_accounts_per_rep }} named accounts each; the long tail goes to inside sales.
+  Every account gets an owner <i>and</i> the rule that put it there — so a rep can never say "nobody told me".</div>
+</section>
+
+<!-- 3 WIN LOSS -->
+<section id="winloss">
+  <div class="sec-head"><h2>3 · Which RFQs to chase: win/loss drivers</h2><span class="badge real">REAL · {{ m.win_loss.deals }} B2B deals</span></div>
+  <p class="lede">The deals are from a B2B solutions seller, but the buying motion is the one I know from die casting: RFI → RFQ package →
+  sometimes a formal tender, a purchasing department, competing quotes, a funded budget. A plain logistic regression on the qualification fields
+  separates winners from losers with AUC {{ "%.2f"|format(m.win_loss.cv_auc_mean) }} ± {{ "%.2f"|format(m.win_loss.cv_auc_std) }} (5-fold CV, 20 repeats).</p>
+  <div class="grid3">
+    <div class="card"><h3>Signals that move win rate (only statistically significant rows)</h3><div class="chart" id="fig-drivers"></div>
+      <div class="legend"><span><span class="sw" style="background:var(--pos)"></span>raises win rate</span><span><span class="sw" style="background:var(--neg)"></span>lowers win rate</span></div></div>
+    <div class="card"><h3>Win rate by deal-score quartile</h3><div class="chart" id="fig-quartiles"></div>
+      <p class="muted" style="font-size:12px">Scores are out-of-fold: each deal was scored by a model that never saw it.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>The RFQ qualification checklist this produces</h3>{{ tables.checklist }}</div>
+  <div class="sowhat"><b>So what:</b> the losers are not "bad luck". "Unknown" budget and "unknown" purchasing involvement lose far more often
+  than either answer — <b>if the rep doesn't know, the deal is already in trouble.</b> New logos and competitive quotes win far less. In a die-cast shop,
+  every RFQ costs engineering hours (DFM review, tooling quote, simulation). Quote the top quartile hard; ask the checklist questions before
+  quoting the bottom quartile.</div>
+</section>
+
+<!-- 4 LEADS -->
+<section id="leads">
+  <div class="sec-head"><h2>4 · Lead scoring with a leakage audit</h2><span class="badge synth">SYNTHETIC CRM · {{ m.lead_scoring.tier_used }} tier</span></div>
+  <p class="lede">Model chosen on the validation split, then scored once on {{ m.lead_scoring.test_rows }} untouched test leads: AUC {{ "%.3f"|format(m.lead_scoring.test_auc) }}
+  (95% bootstrap CI {{ "%.2f"|format(m.lead_scoring.test_auc_ci_low) }}–{{ "%.2f"|format(m.lead_scoring.test_auc_ci_high) }}).
+  Tier A converts at {{ m.lead_scoring.top_tier_rate|pct }} vs {{ m.lead_scoring.bottom_tier_rate|pct }} for tier D.
+  I removed <code>{{ m.lead_scoring.leakage.columns_removed }}</code>: it counts touches <i>after</i> the scoring date and would have inflated AUC by
+  +{{ "%.3f"|format(m.lead_scoring.leakage.auc_inflation) }} — a model that looks better in the slide deck and fails in production.</p>
+  <div class="grid2">
+    <div class="card"><h3>Conversion rate by score tier (test set)</h3><div class="chart" id="fig-lead_tiers"></div></div>
+    <div class="card"><h3>Points scorecard (logistic regression; +20 points = 2× the odds)</h3>{{ tables.scorecard }}</div>
+  </div>
+  {% if tables.benchmark %}
+  <div class="card" style="margin-top:16px"><h3>Robustness: same pipeline on all three published difficulty tiers vs the dataset authors' baselines</h3>{{ tables.benchmark }}
+    <p class="muted" style="font-size:12px;margin-top:6px">Published baselines are medians over 5 random seeds; the shipped files are one seed, so ± half the published spread is the honest comparison band.
+    On the "advanced" tier (18% missing values, heavy noise) no model is reliable — I report that instead of hiding it.</p></div>
+  {% endif %}
+  <div class="sowhat"><b>So what:</b> the top 30% of leads (tiers A+B) hold {{ m.lead_scoring.top30_share_of_conversions|pct }} of conversions.
+  Route A/B to reps within the hour; send C/D to nurture. The scorecard is readable, so it can live as a HubSpot/Salesforce score property, not a black box.</div>
+</section>
+
+<!-- 5 PIPELINE -->
+<section id="pipeline">
+  <div class="sec-head"><h2>5 · Pipeline health</h2><span class="badge synth">SYNTHETIC CRM</span></div>
+  <p class="lede">{{ m.pipeline.opportunities|num }} opportunities, {{ m.pipeline.closed_opportunities|num }} closed, win rate {{ m.pipeline.win_rate|pct(1) }}
+  (95% CI {{ m.pipeline.win_rate_ci[0]|pct(1) }}–{{ m.pipeline.win_rate_ci[1]|pct(1) }}). {{ m.pipeline.stalled_deals|num }} open deals
+  ({{ m.pipeline.stalled_acv|money }}) had no touch for {{ m.pipeline.stalled_after_days }}+ days at their snapshot date.</p>
+  <div class="grid2">
+    <div class="card"><h3>Funnel</h3><div class="chart" id="fig-funnel"></div>
+      <h3 style="margin-top:12px">Win rate by lead source</h3><div class="chart" id="fig-seg_source"></div>
+      <h3 style="margin-top:12px">Win rate by industry</h3><div class="chart" id="fig-seg_industry"></div>
+      <div class="legend"><span><span class="sw" style="background:var(--series1)"></span>differs from average (CI excludes it)</span><span><span class="sw" style="background:var(--neutral)"></span>within noise</span><span>│ = overall win rate</span></div></div>
+    <div class="card"><h3>Win rate by rep, with 95% intervals</h3><div class="chart" id="fig-reps"></div>
+      <p>Chi-square test across reps: p = {{ "%.2f"|format(m.reps.p_value) }}. The {{ m.reps.min_rate|pct }}–{{ m.reps.max_rate|pct }} spread is
+      <b>{% if m.reps.p_value > 0.05 %}consistent with pure chance{% else %}larger than chance{% endif %}</b>.</p>
+      <p class="muted">A leaderboard without intervals would have named a "best" and "worst" rep. Coaching decisions need more than noise.</p></div>
+  </div>
+  <div class="sowhat"><b>Segments that really differ:</b>
+    <ul>{% for s in sig_segments %}<li>{{ s }}</li>{% else %}<li>none at 95% confidence</li>{% endfor %}</ul></div>
+</section>
+
+<!-- 6 FORECAST -->
+<section id="forecast">
+  <div class="sec-head"><h2>6 · Forecast: calibrated probabilities vs CRM defaults</h2><span class="badge synth">SYNTHETIC CRM</span></div>
+  <p class="lede">Most CRMs ship stage probabilities nobody changes (Negotiation = 90%). On {{ m.forecast.open_deals|num }} open deals ({{ m.forecast.open_pipeline_acv|money }}),
+  those defaults forecast <b>{{ m.forecast.forecast_stage_default|money }}</b>. A model trained on {{ m.forecast.closed_deals_for_training|num }} closed deals forecasts
+  <b>{{ m.forecast.forecast_model_expected|money }}</b>, with a commit / best-case range of {{ m.forecast.commit_p10|money }} – {{ m.forecast.best_case_p90|money }}
+  (20,000 Monte Carlo runs, including uncertainty in the win rate itself).</p>
+  <div class="grid3">
+    <div class="card"><h3>Distribution of possible bookings</h3><div class="chart" id="fig-forecast"></div></div>
+    <div class="card"><h3>Calibration (out-of-fold, closed deals)</h3><div class="chart" id="fig-calibration"></div>
+      <p class="muted" style="font-size:12px">On the diagonal = honest probabilities. Max gap {{ m.forecast.calibration_max_gap|pct }}.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Forecast by rep (hover for the CRM-default number)</h3><div class="chart" id="fig-forecast_reps"></div></div>
+  <div class="sowhat"><b>So what:</b> the stage defaults overstate the number by <b>{{ m.forecast.stage_default_overstatement|pct }}</b>, and
+  in {{ m.forecast.prob_reaching_stage_default|pct(1) }} of simulations does the team reach it. Most of the fix is calibration, not AI: deal-level signal here is weak
+  (AUC {{ "%.2f"|format(m.forecast.oof_auc) }}), but simply using the real {{ m.forecast.historical_win_rate|pct }} historical win rate instead of 90% removes the miss.
+  Close dates are hidden in this dataset, so a back-test by quarter is not possible; the calibration check above is the validation that is possible.</div>
+</section>
+
+<!-- 7 QUALITY -->
+<section id="quality">
+  <div class="sec-head"><h2>7 · Data quality report</h2><span class="badge real">REAL firmographics</span><span class="badge synth">SYNTHETIC CRM</span></div>
+  <p class="lede">RevOps owns the data. {{ m.quality.checks }} automated checks, each with severity, failed rows, the reason it matters, and who fixes it.
+  The state cleaner rescued {{ m.quality.states_fixed|num }} companies with values like "York", "D.C." and "Tx Texas".</p>
+  <div class="card">{{ tables.quality }}</div>
+  <div class="card" style="margin-top:16px"><h3>State values the cleaner had to handle</h3>{{ tables.state_cleanup }}</div>
+</section>
+
+<!-- 8 METHOD -->
+<section id="method">
+  <div class="sec-head"><h2>8 · Method &amp; sources</h2></div>
+  <div class="grid2">
+    <div class="card"><h3>Pipeline</h3>
+      <p>Hugging Face (pinned commits) → <code>ingest.py</code> (DuckDB streams the 629 MB company file) → SQL models
+      <code>staging → intermediate → marts</code> in a DuckDB warehouse → Python analysis (scikit-learn, SciPy) → this static page.
+      One command: <code>castiq run-all</code>. CI runs lint, type checks and the test suite on every push.</p></div>
+    <div class="card"><h3>Datasets</h3>
+      <ul>
+        <li><a href="https://huggingface.co/datasets/bigpictureio/companies-2023-q4-sm">bigpictureio/companies-2023-q4-sm</a> — real firmographics, ODC-BY</li>
+        <li><a href="https://huggingface.co/datasets/markobo/B2B_Sales_data">markobo/B2B_Sales_data</a> — real anonymised B2B deals, CC-BY-4.0</li>
+        <li><a href="https://huggingface.co/datasets/shaypal5/leadforge-lead-scoring-v1">shaypal5/leadforge-lead-scoring-v1</a> — simulated relational CRM, MIT</li>
+      </ul></div>
+  </div>
+</section>
+
+<footer>Generated {{ generated }} by <code>castiq report</code>. All numbers come from <code>docs/metrics.json</code>.</footer>
+</div>
+
+<script>
+const FIGS = {{ figs }};
+function tokens() {
+  const cs = getComputedStyle(document.documentElement);
+  const cache = {};
+  return (s) => {
+    if (typeof s !== "string" || s[0] !== "@") return s;
+    const name = s.slice(1);
+    if (!(name in cache)) cache[name] = cs.getPropertyValue("--" + name).trim() || s;
+    return cache[name];
+  };
+}
+function resolve(obj, t) {
+  if (Array.isArray(obj)) return obj.map((v) => resolve(v, t));
+  if (obj && typeof obj === "object") { const o = {}; for (const k in obj) o[k] = resolve(obj[k], t); return o; }
+  return t(obj);
+}
+function render() {
+  const t = tokens();
+  for (const id in FIGS) {
+    const el = document.getElementById("fig-" + id);
+    if (!el) continue;
+    const fig = resolve(FIGS[id], t);
+    if (fig.layout.meta === "tilemap" && el.clientWidth < 520) {
+      fig.data[0].textfont.size = 8; fig.layout.height = Math.round(el.clientWidth * 0.82);
+    }
+    Plotly.react(el, fig.data, fig.layout, { responsive: true, displaylogo: false,
+      modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"] });
+  }
+}
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("castiq-theme", root.dataset.theme); } catch (e) {}
+  render();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>

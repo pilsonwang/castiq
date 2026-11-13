@@ -1,0 +1,15 @@
+check,table,severity,why,owner,failed,total,failed_pct,status
+Open deal with no logged sales activity,opportunities,high,No activity = no next step. These deals inflate the forecast.,Sales manager,31,2156,0.01437847866419295,FAIL
+Seniority field contradicts job title,contacts,medium,e.g. a 'CFO' stored as individual contributor - persona routing and scoring go wrong.,SDR / enrichment,3263,4200,0.7769047619047619,FAIL
+Contact with a personal email domain,contacts,medium,Personal emails bounce off enrichment and break account matching.,SDR,495,4200,0.11785714285714285,FAIL
+Duplicate company (same website),companies,medium,Two reps can work the same account.,RevOps,10755,247552,0.04344541752843847,FAIL
+Company state missing,companies,medium,Account cannot be routed to a territory.,RevOps / enrichment,4403,247552,0.017786162099276113,FAIL
+Company size band missing,companies,medium,ICP fit score falls back to a low default.,Enrichment vendor,3568,247552,0.014413133402275078,FAIL
+Company state could not be mapped,companies,medium,Account cannot be routed to a territory.,RevOps,904,247552,0.0036517580144777664,FAIL
+Company website missing,companies,low,No domain = no email enrichment or intent matching.,Enrichment vendor,49301,247552,0.199154117114788,FAIL
+Duplicate opportunity IDs,opportunities,high,Double-counts pipeline and bookings.,RevOps,0,4255,0.0,PASS
+Opportunity without a lead,opportunities,high,Breaks source attribution and marketing ROI.,RevOps,0,4255,0.0,PASS
+Lead account differs from its contact's account,leads,high,Activity and pipeline roll up to the wrong company.,RevOps / SDR,0,5000,0.0,PASS
+Opportunity amount missing or zero,opportunities,high,Unforecastable pipeline.,Account executive,0,4255,0.0,PASS
+Opportunity created before its lead,opportunities,medium,Impossible order of events: a sign of back-dated or merged records.,RevOps,0,4255,0.0,PASS
+Activity logged by a rep who does not own the lead,activities,low,"Can be fine (team selling), but breaks rep-level activity metrics.",Sales manager,0,20679,0.0,PASS

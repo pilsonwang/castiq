@@ -1,0 +1,134 @@
+# Ideal Customer Profile for an aluminum / zinc high-pressure die-cast supplier.
+# These rules come from field sales experience in industrial die casting. They are meant to be
+# edited by a sales leader - no code change is needed.
+#
+# fit_score = 100 * (w_industry * industry_fit + w_size * size_fit + w_geo * geo_fit)
+# A company with industry_fit == 0 is outside the market and is not scored.
+
+weights:
+  industry: 0.50
+  size: 0.35
+  geo: 0.15
+
+# industry_fit: how likely the company designs products that use cast metal housings, brackets,
+# heat sinks, or structural parts in volume.
+industry_fit:
+  # 1.0 - core die-cast buyers (powertrain, EV housings, aerospace brackets, pump/valve bodies, enclosures)
+  motor vehicle manufacturing: 1.0
+  motor vehicle parts manufacturing: 1.0
+  automotive: 1.0
+  alternative fuel vehicle manufacturing: 1.0
+  transportation equipment manufacturing: 1.0
+  aviation and aerospace component manufacturing: 1.0
+  aviation & aerospace: 0.9
+  defense and space manufacturing: 0.9
+  defense & space: 0.85
+  engines and power transmission equipment manufacturing: 1.0
+  industrial machinery manufacturing: 0.95
+  machinery manufacturing: 0.9
+  agriculture, construction, mining machinery manufacturing: 0.95
+  automation machinery manufacturing: 0.9
+  industrial automation: 0.85
+  robot manufacturing: 0.85
+  hvac and refrigeration equipment manufacturing: 0.95
+  metal valve, ball, and roller manufacturing: 0.95
+  railroad equipment manufacturing: 0.9
+  appliances, electrical, and electronics manufacturing: 0.9
+  electrical equipment manufacturing: 0.9
+  electric lighting equipment manufacturing: 0.85
+  household appliance manufacturing: 0.85
+  medical equipment manufacturing: 0.8
+  # 0.5 - 0.75 - good fit for enclosures, heat sinks, hardware
+  communications equipment manufacturing: 0.75
+  computers and electronics manufacturing: 0.7
+  computer hardware manufacturing: 0.65
+  consumer electronics: 0.65
+  audio and video equipment manufacturing: 0.6
+  measuring and control instrument manufacturing: 0.75
+  renewable energy equipment manufacturing: 0.75
+  renewable energy semiconductor manufacturing: 0.6
+  fuel cell manufacturing: 0.7
+  smart meter manufacturing: 0.7
+  climate technology product manufacturing: 0.6
+  construction hardware manufacturing: 0.7
+  architectural and structural metal manufacturing: 0.55
+  metalworking machinery manufacturing: 0.6
+  mechanical or industrial engineering: 0.6
+  sporting goods manufacturing: 0.5
+  office furniture and fixtures manufacturing: 0.5
+  manufacturing: 0.5          # generic label - real fit unknown
+  # 0.3 - fabricated metal companies are often casters themselves: partner or competitor, rarely a buyer
+  fabricated metal products: 0.3
+  primary metal manufacturing: 0.3
+  turned products and fastener manufacturing: 0.3
+
+# size_fit: die-cast tooling costs $50k-$250k, so a buyer needs part volume.
+size_fit:
+  "1-10": 0.05
+  "11-50": 0.25
+  "51-200": 0.6
+  "201-500": 0.85
+  "501-1K": 1.0
+  "1K-5K": 1.0
+  "5K-10K": 0.95
+  "10K+": 0.9       # big OEMs often buy through their Tier-1s; access is harder
+  unknown: 0.2
+
+# geo_fit: freight cost and plant visits matter. The Midwest / Southeast "auto + appliance belt" scores highest.
+geo_fit:
+  default: 0.7
+  states:
+    Michigan: 1.0
+    Ohio: 1.0
+    Indiana: 1.0
+    Illinois: 1.0
+    Wisconsin: 1.0
+    Kentucky: 1.0
+    Tennessee: 1.0
+    Alabama: 0.95
+    South Carolina: 0.95
+    North Carolina: 0.9
+    Georgia: 0.9
+    Pennsylvania: 0.9
+    Minnesota: 0.9
+    Missouri: 0.9
+    Iowa: 0.9
+    Texas: 0.9
+    Mississippi: 0.85
+    New York: 0.8
+    California: 0.75
+
+tiers:            # minimum fit_score for each tier
+  A: 80
+  B: 65
+  C: 50
+  # anything lower is D
+
+# ILLUSTRATIVE ASSUMPTION (not from data): annual outsourced die-cast spend for a fit-1.0 company,
+# by size band. Used to turn account counts into a $ market estimate. Change these to fit your market.
+# The result is an order-of-magnitude planning number. Check it against your own industry data.
+annual_spend_usd:
+  "1-10": 0
+  "11-50": 25000
+  "51-200": 150000
+  "201-500": 400000
+  "501-1K": 1000000
+  "1K-5K": 2500000
+  "5K-10K": 5000000
+  "10K+": 10000000
+  unknown: 0
+
+# Serviceable share: the part of the spend a mid-size caster can win (alloy, part size, tonnage limits).
+serviceable_share: 0.35
+# Obtainable share: realistic 3-year share of serviceable spend for a new sales team.
+obtainable_share: 0.03
+
+territories:
+  count: 6                    # number of field territories to design
+  compactness_weight: 0.05    # 0 = balance at any shape; higher = rounder territories, less balance
+  potential_tiers: [A, B]     # only these tiers count toward territory potential
+  reps_per_territory: 2
+  strategic:                  # named-account carve-out: these go to a strategic team, not territories
+    tiers: [A]
+    size_bands: ["5K-10K", "10K+"]
+  rep_capacity_accounts: 150  # max actively-worked accounts per rep

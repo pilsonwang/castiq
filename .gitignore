@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Data: rebuilt by `castiq run-all` (downloads are pinned and hashed in data/raw/manifest.json)
+data/hf_cache/
+data/raw/
+data/outputs/
+data/*.duckdb
+data/*.duckdb.wal
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

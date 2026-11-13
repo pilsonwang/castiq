@@ -1,0 +1,35 @@
+# Operating rules for pipeline, forecast, and lead scoring. Edit these, not the code.
+
+pipeline:
+  # An open deal with no touch or activity for this many days is "stalled". The source window is
+  # 30 days per lead, so one quiet week is the right alarm here (use 14-21 for a real quarter).
+  stalled_after_days: 7
+  min_segment_n: 30             # do not report a segment win rate on fewer closed deals than this
+
+forecast:
+  # Out-of-the-box Salesforce stage probabilities, mapped to this CRM's stage names.
+  # Many teams never change these - the report shows what that costs in forecast accuracy.
+  default_stage_probability:
+    demo_scheduled: 0.20
+    demo_completed: 0.50
+    proposal_sent: 0.75
+    negotiation: 0.90
+  monte_carlo_runs: 20000
+  random_seed: 42
+
+lead_scoring:
+  # Columns the model must never see. total_touches_all counts touches AFTER the snapshot date
+  # (documented leakage trap in the source dataset).
+  leakage_columns: [total_touches_all]
+  id_columns: [account_id, contact_id, lead_id, lead_created_at]
+  target: converted_within_90_days
+  # Score tiers, by share of leads (top first). Must add up to 1.0.
+  tier_shares: {A: 0.10, B: 0.20, C: 0.30, D: 0.40}
+  bootstrap_runs: 1000
+  random_seed: 42
+
+win_loss:
+  min_group_n: 15               # hide driver rows with fewer deals than this
+  cv_folds: 5
+  cv_repeats: 20
+  random_seed: 42
