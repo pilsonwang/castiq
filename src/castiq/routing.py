@@ -197,10 +197,10 @@ def route_accounts(scored: pd.DataFrame, plan: TerritoryPlan, cfg: dict[str, Any
     work["territory"] = work["state"].map(state_to_t)
     work["route_rule"] = np.where(is_strat, "1-strategic",
                                   np.where(work["territory"].isna(), "2-data-review", "3-territory"))
-    work["owner"] = np.where(is_strat, "Strategic team",
-                             np.where(work["territory"].isna(), "RevOps data review", None))
-
-    owners = work["owner"].to_numpy(dtype=object)
+    # Rules 1 and 2 set the owner here; rule 3 (territory round-robin) fills the rest below.
+    owners = np.full(len(work), None, dtype=object)
+    owners[work["territory"].isna().to_numpy()] = "RevOps data review"
+    owners[is_strat.to_numpy()] = "Strategic team"
     terr = work["territory"].to_numpy(dtype=object)
     counters: dict[str, int] = {}
     for idx in np.where(work["route_rule"].to_numpy() == "3-territory")[0]:
