@@ -1,4 +1,4 @@
 # Public links used in the generated README and career docs.
 # After the first push, set these to your GitHub repo and GitHub Pages URL, then run `castiq analyze`.
-github_repo: ""            # e.g. your-username/castiq
-dashboard_url: ""          # e.g. https://your-username.github.io/castiq/
+github_repo: "Pilsonwang/castiq"
+dashboard_url: "https://pilsonwang.github.io/castiq/"

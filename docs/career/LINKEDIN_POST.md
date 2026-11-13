@@ -12,7 +12,7 @@
 > 🧹 Data: 8 of 14 CRM hygiene checks failed. Every one has an owner and a fix.
 >
 > Stack: Python, SQL (DuckDB), scikit-learn, Hugging Face datasets, GitHub Actions.
-> Dashboard + code: <link>
+> Dashboard + code: https://pilsonwang.github.io/castiq/
 >
 > I'm looking for a remote/hybrid RevOps or GTM Engineering role — especially in manufacturing tech.
 > If your team sells to engineers and purchasing managers, let's talk.

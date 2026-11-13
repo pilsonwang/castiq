@@ -3,7 +3,7 @@
 Use 3–4 of these under a **Projects** heading, or under your current role if you build the same thing at work.
 Every number below comes from `docs/metrics.json` and changes if the data or config changes.
 
-**CastIQ — RevOps analytics engine for industrial manufacturing (Python, SQL/DuckDB, scikit-learn)** · github.com/<you>/castiq
+**CastIQ — RevOps analytics engine for industrial manufacturing (Python, SQL/DuckDB, scikit-learn)** · github.com/Pilsonwang/castiq
 
 - Built an end-to-end GTM data pipeline (Hugging Face → DuckDB warehouse → Python models → static dashboard) with
   pinned data versions, CI, and a full test suite; one command rebuilds every number.

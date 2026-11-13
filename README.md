@@ -13,7 +13,7 @@ build on day one as the RevOps / GTM engineer for a supplier like the ones I sol
 
 ![Dashboard](docs/assets/dashboard.png)
 
-**[Open the live dashboard →](docs/index.html)** · [Case study](docs/CASE_STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Data sources](docs/DATA_SOURCES.md)
+**[Open the live dashboard →](https://pilsonwang.github.io/castiq/)** · [Case study](docs/CASE_STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Data sources](docs/DATA_SOURCES.md)
 
 ## Results in 60 seconds
 
